@@ -21,14 +21,11 @@ func NewStore(master string, addrs []string, prefix *string) (coa.KeyValueStore,
 	if err := client.Ping().Err(); err != nil {
 		return nil, errors.Wrap(err, "ping failed")
 	}
-	if !strings.HasSuffix(*prefix, "/") {
-		*prefix += "/"
-	}
 	return redisStore{client, prefix}, nil
 }
 
 func (rs redisStore) Get(key []byte) ([]byte, error) {
-	cmd := rs.c.Get(*rs.prefix + string(key))
+	cmd := rs.c.Get(prefix(*rs.prefix) + string(key))
 	if cmd.Err() == redis.Nil {
 		return nil, nil
 	}
@@ -43,5 +40,12 @@ func (rs redisStore) Get(key []byte) ([]byte, error) {
 }
 
 func (rs redisStore) Put(key []byte, value []byte) error {
-	return rs.c.Set(*rs.prefix+string(key), value, 0).Err()
+	return rs.c.Set(prefix(*rs.prefix)+string(key), value, 0).Err()
+}
+
+func prefix(s string) string {
+	if strings.HasSuffix(s, "/") {
+		return s
+	}
+	return s + "/"
 }
