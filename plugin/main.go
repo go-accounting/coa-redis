@@ -4,12 +4,12 @@ import (
 	coaredis "github.com/go-accounting/coa-redis"
 )
 
-func NewKeyValueStore(settings map[string]interface{}, sp *string) (interface{}, error) {
-	v := settings["Addresses"].([]interface{})
+func NewKeyValueStore(config map[string]interface{}, ss ...*string) (interface{}, error) {
+	v := config["NewKeyValueStore/Addresses"].([]interface{})
 	addrs := make([]string, len(v))
 	for i, a := range v {
 		addrs[i] = a.(string)
 	}
-	master, _ := settings["Master"].(string)
-	return coaredis.NewStore(master, addrs, sp)
+	master, _ := config["NewKeyValueStore/Master"].(string)
+	return coaredis.NewStore(master, addrs, ss[0])
 }
